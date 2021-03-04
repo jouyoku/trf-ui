@@ -1,6 +1,10 @@
 import Vue from 'vue'
 import VueRouter, { RouteConfig } from 'vue-router'
 import Home from '../views/Home.vue'
+import List from '../views/List.vue'
+import Form from '../views/Form.vue'
+import Setup from '../views/Setup.vue'
+import Home0 from '../views/Home0.vue'
 
 Vue.use(VueRouter)
 
@@ -9,6 +13,26 @@ const routes: Array<RouteConfig> = [
     path: '/',
     name: 'Home',
     component: Home
+  },
+  {
+    path: '/list',
+    name: 'List',
+    component: List
+  },
+  {
+    path: '/form',
+    name: 'Form',
+    component: Form
+  },
+  {
+    path: '/setup',
+    name: 'Setup',
+    component: Setup
+  },
+  {
+    path: '/home0',
+    name: 'Home0',
+    component: Home0
   },
   {
     path: '/about',

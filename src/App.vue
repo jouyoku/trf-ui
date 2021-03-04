@@ -1,11 +1,18 @@
-<template>
-  <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
-    <router-view/>
-  </div>
+<template lang="pug">
+#app
+  b-row(align-v="center")
+    b-col
+      h3 記錄
+    b-col
+      #nav
+        router-link(to='/') 首頁
+        |  | 
+        router-link(to='/list') 列表
+        |  |
+        router-link(to='/form') 填寫
+        |  |
+        router-link(to='/setup') 設定
+  router-view
 </template>
 
 <style lang="scss">
