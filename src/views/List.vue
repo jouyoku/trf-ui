@@ -20,7 +20,7 @@
 					b-button(@click="test2") 查詢
 				//b-form-input(type="text", v-model="searchString")
 				b-form-input()
-	| {{formFields}}
+	| {{records}}
 </template>
 <script>
 import {
@@ -46,6 +46,7 @@ export default {
     const formFields = ref(_form.formFields)
     const formField = ref(_form.formField)
     const formFieldNames = ref(_form.formFieldNames)
+    const records = ref(_form.records)
 
     return {
       forms,
@@ -54,6 +55,7 @@ export default {
       formFields,
       formField,
       formFieldNames,
+      records,
     };
   },
   methods: {

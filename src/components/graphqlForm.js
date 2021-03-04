@@ -64,11 +64,7 @@ export const query = {
                 _changes
               }
             }`,
-  records: ` query ($where: String) {
-                records(where: $where) {
-                  __FIELDS__
-                }
-              }`,
+
   records2: `query ($condition: String) {
                 records2(condition: $condition) {
                   __FIELDS__
