@@ -28,22 +28,22 @@ export function Form(formName) {
     for (const key in formFields.value) {
       tmp.push(formFields.value[key].name);
     }
-    console.log(tmp);
+    //console.log(tmp);
     return tmp;
   });
 
   const graphqlFormQueryRecordsId = computed(() => {
-    console.log(formFieldNames); //.join('\n'));
+    //console.log(formFieldNames); //.join('\n'));
     return gqlFormQuery.records2.replace('__FIELDS__', '_id');
   });
 
   const graphqlFormQueryRecords = computed(() => {
-    console.log(formFieldNames); //.join('\n'));
+    //console.log(formFieldNames); //.join('\n'));
     return gqlFormQuery.records2.replace('__FIELDS__', formFieldNames.value.join('\n'));
   });
 
   const transformRecord = (record0) => {
-    console.log(selects.value, record0);
+    //console.log(selects.value, record0);
     for (const j in selects.value) {
       let value = record0[j];
       if (!selects.value[j][value] && isStrJson(value)) {
@@ -75,7 +75,7 @@ export function Form(formName) {
       })
       .then(
         (result) => {
-          //*
+          /*
           console.log(fromId, result, records.value);
           console.log(
             records.value[fromId]["_id"],
@@ -194,6 +194,10 @@ export function Form(formName) {
                 formFields.value[key].attributes
               ));
               if (formFields.value[key]["type"] == "select") {
+                console.log(key, formFields.value[key]);
+                if(typeof formFields.value[key]["attributes"] != 'string') {
+                  continue;
+                }
                 const tmp1 = JSON.parse(
                   formFields.value[key]["attributes"]
                 )["options"];
@@ -213,7 +217,7 @@ export function Form(formName) {
               })
               .then(
                 (result) => {
-                  console.log("result", result);
+                  //console.log("result", result);
                   records.value = result["data"]["data"]["records2"];
                   let i = records.value.length - 15;
                   let count = 15;

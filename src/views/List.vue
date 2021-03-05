@@ -20,7 +20,8 @@
 					b-button(@click="test2") 查詢
 				//b-form-input(type="text", v-model="searchString")
 				b-form-input()
-	| {{records}}
+	RecordList(:records="records")
+	//| {{records}}
 </template>
 <script>
 import {
@@ -32,14 +33,19 @@ import {
 import {
   Form
 } from '@/components/Form.js'; // @ is an alias to /src
+import RecordList from '@/components/RecordList.vue'; // @ is an alias to /src
 
 export default {
   props: {},
+	components: {
+    RecordList,
+  },
   setup(props, context) {
 
     const _forms = Forms();
     const forms = ref(_forms.forms);
     const formNames = ref(_forms.formNames)
+		const forms2 = ref(_forms.forms2);
 
     const form = ref("");
     const _form = Form(form);
@@ -56,6 +62,7 @@ export default {
       formField,
       formFieldNames,
       records,
+			forms2,
     };
   },
   methods: {
