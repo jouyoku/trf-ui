@@ -12,10 +12,16 @@ import {
 } from "./graphqlForm.js";
 import {
   isStrJson,
-  epoch2Date
+  epoch2Date,
+  getApolloClient,
 } from './utils.js'
+import gql from 'graphql-tag'
+import _ from 'lodash'
+
 
 export function Form(formName) {
+  const _client = ref(getApolloClient(gqlFormUrl + "?name=" + formName))
+
   const form = ref(formName);
   const formFields = ref([]);
   const formField = ref("");
@@ -42,8 +48,9 @@ export function Form(formName) {
     return gqlFormQuery.records2.replace('__FIELDS__', formFieldNames.value.join('\n'));
   });
 
-  const transformRecord = (record0) => {
+  const transformRecord = (record00) => {
     //console.log(selects.value, record0);
+    const record0 = _.cloneDeep(record00)
     for (const j in selects.value) {
       let value = record0[j];
       if (!selects.value[j][value] && isStrJson(value)) {
@@ -66,9 +73,9 @@ export function Form(formName) {
   };
 
   const updateRecords = (fromId, count) => {
-    axios
-      .post(gqlFormUrl + "?name=" + form.value, {
-        query: graphqlFormQueryRecords.value,
+    console.log(fromId, count, records.value,graphqlFormQueryRecords.value);
+    _client.value.query({
+        query: gql(graphqlFormQueryRecords.value),
         variables: {
           condition: "ORDER BY _id LIMIT " + fromId + "," + count,
         },
@@ -76,89 +83,85 @@ export function Form(formName) {
       .then(
         (result) => {
           /*
-          console.log(fromId, result, records.value);
           console.log(
+            result,
             records.value[fromId]["_id"],
-            result["data"]["data"]["records2"][0]["_id"]
+            result["data"]["records2"][0]["_id"]
           );
           //*/
           for (
-            let i = 0; i < result["data"]["data"]["records2"].length; i++
+            let i = 0; i < result["data"]["records2"].length; i++
           ) {
             let index = fromId + i;
             if (
               records.value[index]["_id"] ==
-              result["data"]["data"]["records2"][i]["_id"]
+              result["data"]["records2"][i]["_id"]
             ) {
               set(
                 records.value,
                 index,
-                transformRecord(result["data"]["data"]["records2"][i])
+                transformRecord(result["data"]["records2"][i])
               );
               continue;
             }
 
             if (
               records.value[index]["_id"] >
-              result["data"]["data"]["records2"][i]["_id"]
+              result["data"]["records2"][i]["_id"]
             ) {
               index = index - 1;
               while (
                 records.value[index]["_id"] >
-                result["data"]["data"]["records2"][i]["_id"]
+                result["data"]["records2"][i]["_id"]
               ) {
                 index = index - 1;
               }
               if (
                 records.value[index]["_id"] ==
-                result["data"]["data"]["records2"][i]["_id"]
+                result["data"]["records2"][i]["_id"]
               ) {
                 set(
                   records.value,
                   index,
-                  transformRecord(result["data"]["data"]["records2"][i])
+                  transformRecord(result["data"]["records2"][i])
                 );
                 continue;
               }
               records.value.splice(
                 index + 1,
                 0,
-                transformRecord(result["data"]["data"]["records2"][i])
+                transformRecord(result["data"]["records2"][i])
               );
               this.table.totalRows.value = records.value.length;
               continue;
             }
             while (
               records.value[index]["_id"] <
-              result["data"]["data"]["records2"][0]["_id"]
+              result["data"]["records2"][0]["_id"]
             ) {
               index = index + 1;
             }
             if (
               records.value[index]["_id"] ==
-              result["data"]["data"]["records2"][i]["_id"]
+              result["data"]["records2"][i]["_id"]
             ) {
               set(
                 records.value,
                 index,
-                transformRecord(result["data"]["data"]["records2"][i])
+                transformRecord(result["data"]["records2"][i])
               );
               continue;
             }
             records.value.splice(
               index,
               0,
-              transformRecord(result["data"]["data"]["records2"][i])
+              transformRecord(result["data"]["records2"][i])
             );
             this.table.totalRows.value = records.value.length;
           }
         },
         (error) => {
-          //console.log("error", error);
-          this.$message({
-            type: "info",
-            message: "Send mail failed...",
-          });
+          console.log("error", error);
         }
       );
   }
@@ -181,21 +184,23 @@ export function Form(formName) {
         return;
       }
 
-      axios
-        .post(gqlFormUrl + "?name=" + form.value, {
-          query: gqlFormQuery.fields,
+      _client.value = getApolloClient(gqlFormUrl + "?name=" + form.value)
+
+      _client.value.query({
+          query: gql(gqlFormQuery.fields),
         })
         .then(
           (result) => {
-            //console.log("result", result);
-            formFields.value = result["data"]["data"]["fields"];
+            console.log("result", result);
+            formFields.value = _.cloneDeep(result["data"]["fields"]);
             for (const key in formFields.value) {
+              console.log(key, formFields.value[key]);
               set(formFields.value[key], "attributes", JSON.parse(
                 formFields.value[key].attributes
               ));
               if (formFields.value[key]["type"] == "select") {
                 console.log(key, formFields.value[key]);
-                if(typeof formFields.value[key]["attributes"] != 'string') {
+                if (typeof formFields.value[key]["attributes"] != 'string') {
                   continue;
                 }
                 const tmp1 = JSON.parse(
@@ -218,7 +223,7 @@ export function Form(formName) {
               .then(
                 (result) => {
                   //console.log("result", result);
-                  records.value = result["data"]["data"]["records2"];
+                  records.value = result['data']["data"]["records2"];
                   let i = records.value.length - 15;
                   let count = 15;
                   if (i < 0) {

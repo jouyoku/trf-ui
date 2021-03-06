@@ -1,3 +1,9 @@
+import {
+  ApolloClient,
+  createHttpLink,
+  InMemoryCache
+} from '@apollo/client/core'
+
 export function tags2str(tags) {
   if (tags == "") {
     tags = "[]";
@@ -99,4 +105,21 @@ export function epoch2Date(epoch) {
     (mm > 9 ? "" : "0") + mm,
     (dd > 9 ? "" : "0") + dd,
   ].join("-");
+}
+
+export function getApolloClient(uri) {
+  // HTTP connection to the API
+  const httpLink = createHttpLink({
+    // You should use an absolute URL here
+    uri: uri,
+  })
+
+  // Cache implementation
+  const cache = new InMemoryCache()
+
+  // Create the apollo client
+  return new ApolloClient({
+    link: httpLink,
+    cache,
+  })
 }
