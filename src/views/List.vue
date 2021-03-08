@@ -1,7 +1,5 @@
 <template lang="pug">
 .list
-	//b-navbar(sticky=true, toggleable=true, variant='light')
-	//b-container.mt-3
 	b-row(size='sm')
 		b-col(md='6')
 			b-input-group(size='sm')
@@ -20,7 +18,7 @@
 					b-button(@click="test2") 查詢
 				//b-form-input(type="text", v-model="searchString")
 				b-form-input()
-	RecordList(:records="records")
+	RecordList(:records="records", :fields="formFieldNames")
 	//| {{records}}
 </template>
 <script>
