@@ -31,6 +31,7 @@ export function Forms() {
   }, (error) => {
     console.log(error)
   });
+
 /*
   _client.query({
     query: gql( gqlFormsQuery.forms)

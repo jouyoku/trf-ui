@@ -5,68 +5,40 @@
 			b-input-group(size='sm')
 				b-input-group-prepend(is-text) form
 				b-form-select(v-model="form", :options="formNames")
-		b-col(md='6')
-			b-input-group(size='sm')
-				b-input-group-prepend(is-text) field
-				b-form-select(v-model="formField", :options="formFieldNames")
-
-		b-col.my-1(md='6')
-			b-input-group(size='sm')
-				b-input-group-prepend
-					//b-button.mr-1(v-if="searchMode", size='sm', @click="searchStop()") 結束
-					//b-button(@click="searchStart()") 查詢
-					b-button(@click="test2") 查詢
-				//b-form-input(type="text", v-model="searchString")
-				b-form-input()
-	RecordList(:records="records", :fields="formFieldNames")
+	FormRecords(:form="form")
 	//| {{records}}
 </template>
 <script>
 import {
-  ref
+  ref,
+  watch,
+  set,
 } from '@vue/composition-api';
-import {
-  Forms
-} from '@/components/Forms.js'; // @ is an alias to /src
-import {
-  Form
-} from '@/components/Form.js'; // @ is an alias to /src
-import RecordList from '@/components/RecordList.vue'; // @ is an alias to /src
+import FormRecords from '@/components/FormRecords.vue'; // @ is an alias to /src
+import * as gql from '@/components/lib/js/GraphQL.js'
 
 export default {
   props: {},
-	components: {
-    RecordList,
+  components: {
+    FormRecords,
   },
   setup(props, context) {
+    const forms = ref([]);
+    const formNames = ref([])
+		const form = ref("");
 
-    const _forms = Forms();
-    const forms = ref(_forms.forms);
-    const formNames = ref(_forms.formNames)
-		const forms2 = ref(_forms.forms2);
-
-    const form = ref("");
-    const _form = Form(form);
-    const formFields = ref(_form.formFields)
-    const formField = ref(_form.formField)
-    const formFieldNames = ref(_form.formFieldNames)
-    const records = ref(_form.records)
+    gql.getForms().then((r) => {
+      forms.value = r;
+      formNames.value = gql.getFormNames(forms.value);
+    }, (e) => {
+      console.error(e);
+    });
 
     return {
       forms,
       form,
       formNames,
-      formFields,
-      formField,
-      formFieldNames,
-      records,
-			forms2,
     };
   },
-  methods: {
-    test2: function() {
-      console.log("eee");
-    }
-  }
 };
 </script>

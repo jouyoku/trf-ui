@@ -1,0 +1,4 @@
+mixin table
+  b-pagination(size="sm", :total-rows="records.length", v-model="currentPage", :per-page="15", align="fill", limit="10")
+  b-table(show-empty='', responsive='true', small, striped, sort-by="_id", sort-desc, :items="records", :fields="fields", per-page="15", :current-page="currentPage")
+    block
