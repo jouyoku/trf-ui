@@ -6,7 +6,11 @@ import {
 import {
   url as gqlFormUrl,
   query as gqlFormQuery,
+  mutation as gqlFormMutation,
 } from "./graphqlForm.js";
+import {
+  whereStr
+} from "./utils.js"
 
 export async function getForms() {
   try {
@@ -47,20 +51,18 @@ export async function getFormFields(form) {
         res.fields[key].attributes = JSON.parse(res.fields[key].attributes);
       }
       switch (res.fields[key].type) {
-        case "select":
-          {
-            const tmp = {};
-            for (const option of res.fields[key].attributes.options) {
-              tmp[option.value] = option.text;
-            }
-            res.selects[res.fields[key].name] = tmp;
-            break;
+        case "select": {
+          const tmp = {};
+          for (const option of res.fields[key].attributes.options) {
+            tmp[option.value] = option.text;
           }
-        case "date":
-          {
-            res.dates.push(res.fields[key].name);
-            break;
-          }
+          res.selects[res.fields[key].name] = tmp;
+          break;
+        }
+        case "date": {
+          res.dates.push(res.fields[key].name);
+          break;
+        }
         default:
       }
     }
@@ -108,6 +110,21 @@ export async function getFormRecords(form, formFieldNames, fromId, count) {
       },
     });
     return response.data.data.records2;
+  } catch (error) {
+    console.error(error)
+    return false;
+  }
+}
+
+export async function deleteRecord(form, id) {
+  try {
+    const response = await axios.post(gqlFormUrl1(form), {
+      query: gqlFormMutation.deleteRecord,
+      variables: {
+        where: whereStr(id),
+      },
+    });
+    return response.data.data.deleteRecord;
   } catch (error) {
     console.error(error)
     return false;

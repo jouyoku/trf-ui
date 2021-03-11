@@ -1,8 +1,10 @@
+/*
 import {
   ApolloClient,
   createHttpLink,
   InMemoryCache
 } from '@apollo/client/core'
+//*/
 
 export function tags2str(tags) {
   if (tags == "") {
@@ -106,7 +108,7 @@ export function epoch2Date(epoch) {
     (dd > 9 ? "" : "0") + dd,
   ].join("-");
 }
-
+/*
 export function getApolloClient(uri) {
   // HTTP connection to the API
   const httpLink = createHttpLink({
@@ -123,3 +125,4 @@ export function getApolloClient(uri) {
     cache,
   })
 }
+//*/

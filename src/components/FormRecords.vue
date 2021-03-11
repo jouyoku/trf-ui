@@ -1,20 +1,18 @@
 <template lang="pug">
 .list
-	b-row(size='sm')
+	b-row(v-if="records.length > perPage", size='sm')
 		b-col(md='6')
 			b-input-group(size='sm')
-				b-input-group-prepend(is-text) field
-				b-form-select(v-model="formField", :options="formFieldNames")
-
-		b-col.my-1(md='6')
-			b-input-group(size='sm')
-				b-input-group-prepend
-					//b-button.mr-1(v-if="searchMode", size='sm', @click="searchStop()") 結束
-					//b-button(@click="searchStart()") 查詢
-					//b-button(@click="test2") 查詢
-				//b-form-input(type="text", v-model="searchString")
-				b-form-input()
-	RecordList(:records="records", :fields="formHeaderFields", @currentPageChanged="onCurrentPageChanged")
+				b-input-group-prepend(is-text) Page
+				b-form-input(v-model="currentPage")
+		b-col(md='6')
+			b-pagination(size="sm", :total-rows="records.length", v-model="currentPage", :per-page="perPage", align="fill", :limit="paginationLimit", first-number, last-number)
+	b-table(show-empty='', responsive='true', small, striped, sort-by="_id", sort-desc, :items="records", :fields="formHeaderFields", :per-page="perPage", :current-page="currentPage")
+		template(v-slot:cell(_actions)="row")
+			b-button.m-1(size='sm', :href='editRecordUrl(row.item._id)')
+				| 編輯
+			b-button.m-1(size='sm', @click='deleteRecord(row.item._id)')
+				| 刪除
 </template>
 <script>
 import {
@@ -24,7 +22,6 @@ import {
   toRefs,
   computed,
 } from '@vue/composition-api';
-import RecordList from '@/components/RecordList.vue'; // @ is an alias to /src
 import * as gql from '@/components/lib/js/GraphQL.js'
 
 export default {
@@ -33,51 +30,71 @@ export default {
       type: String,
       default: "",
     },
-  },
-  components: {
-    RecordList,
+    perPage: {
+      type: Number,
+      default: 15,
+    },
+    paginationLimit: {
+      type: Number,
+      default: 5,
+    },
   },
   setup(props, context) {
-    const { form } = toRefs(props)
+    const {
+      form,
+      perPage,
+    } = toRefs(props)
+
+    const currentPage = ref(1);
     const formFields = ref([])
     const formFieldNames = ref([])
     const formField = ref("")
     const records = ref([])
-    //const currentPage = ref(1);
 
-    const updateRecords = (fromId, newRecords) => {
-      for (const record of newRecords) {
-        for (let i = 0; i < newRecords.length; i++) {
-          if (records.value[fromId + i]._id !== record._id) {
-            continue;
-          }
-          set(records.value, fromId + i, record);
-          continue;
-        }
-      }
-    }
+    const fetchPage = async (page) => {
+			if(formFields.value.length <= 0) {
+				return;
+			}
 
-    const onCurrentPageChanged = async (currentPage) => {
-      let fromId = records.value.length - currentPage * 15;
-      let count = 15;
+      let fromId = records.value.length - page * perPage.value;
+      let count = perPage.value;
       if (fromId < 0) {
         count = count + fromId;
         fromId = 0;
       }
+			for(let i=count-1;i>=0;i--) {
+				if(!records.value[fromId + i][formFields.value[0].name]) {
+					break;
+				}
+				count--;
+			}
       await gql.getFormRecords(form.value, formFieldNames.value, fromId, count).then((r) => {
-        updateRecords(fromId, r);
+				console.log(r);
+        for (let i = 0; i < r.length; i++) {
+          if (records.value[fromId + i]._id !== r[i]._id) {
+            continue;
+          }
+          set(records.value, fromId + i, r[i]);
+          continue;
+        }
       }, (e) => {
         console.error(e);
       });
     }
 
     const formHeaderFields = computed(() => {
-      const tmp = [{ key: "_id", label: "ID" }];
+      const tmp = [{
+        key: "_actions",
+        label: ""
+      }, {
+        key: "_id",
+        label: "ID"
+      }];
       for (const field of formFields.value) {
-        if (field.hidden) {
-          //continue;
-        }
-        tmp.push({ key: field.name, label: field.comment });
+        tmp.push({
+          key: field.name,
+          label: field.comment
+        });
       }
       return tmp;
     });
@@ -102,7 +119,7 @@ export default {
           console.error(e);
         });
 
-        onCurrentPageChanged(1);
+        fetchPage(currentPage.value);
 
       }, {
         deep: true,
@@ -110,13 +127,40 @@ export default {
       }
     );
 
+    watch(currentPage, (newVal, oldVal) => {
+      fetchPage(newVal)
+    })
+
+    const editRecordUrl = (id) => {
+      return "http://localhost:8080/msbt_admin/cid.record.edit?name=" + form.value + "&id=" + id
+    }
+
+    const deleteRecord = async (id) => {
+      if (!await context.root.$bvModal.msgBoxConfirm("確定刪除資料？")) {
+        return;
+      }
+
+      if (!await gql.deleteRecord(form.value, id)) {
+        context.root.$bvModal.msgBoxOk("刪除資料失敗！");
+        return;
+      }
+
+      for (const key in records.value) {
+        if (records.value[key]["_id"] == id) {
+          records.value.splice(key, 1);
+        }
+      }
+
+			fetchPage(currentPage.value);
+    }
+
     return {
+      currentPage,
       formFields,
-      formField,
-      formFieldNames,
       records,
-      onCurrentPageChanged,
       formHeaderFields,
+      editRecordUrl,
+      deleteRecord,
     };
   },
 };
