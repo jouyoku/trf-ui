@@ -52,9 +52,9 @@ export default {
     const records = ref([])
 
     const fetchPage = async (page) => {
-			if(formFields.value.length <= 0) {
-				return;
-			}
+      if (formFields.value.length <= 0) {
+        return;
+      }
 
       let fromId = records.value.length - page * perPage.value;
       let count = perPage.value;
@@ -62,12 +62,12 @@ export default {
         count = count + fromId;
         fromId = 0;
       }
-			for(let i=count-1;i>=0;i--) {
-				if(!records.value[fromId + i][formFields.value[0].name]) {
-					break;
-				}
-				count--;
-			}
+      for (let i = count - 1; i >= 0; i--) {
+        if (!records.value[fromId + i][formFields.value[0].name]) {
+          break;
+        }
+        count--;
+      }
       await gql.getFormRecords(form.value, formFieldNames.value, fromId, count).then((r) => {
         for (let i = 0; i < r.length; i++) {
           if (records.value[fromId + i]._id !== r[i]._id) {
@@ -131,7 +131,7 @@ export default {
     })
 
     const editRecordUrl = (id) => {
-      return "http://localhost:8080/msbt_admin/cid.record.edit?name=" + form.value + "&id=" + id
+      return process.env.VUE_APP_editRecordUrl.replace("__FORM__", form.value).replace("__ID__", id)
     }
 
     const deleteRecord = async (id) => {
@@ -150,7 +150,7 @@ export default {
         }
       }
 
-			fetchPage(currentPage.value);
+      fetchPage(currentPage.value);
     }
 
     return {

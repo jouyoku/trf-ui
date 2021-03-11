@@ -1,4 +1,4 @@
-export const url = "http://localhost:8080/msbt_admin/cid/api/form.php";
+export const url = process.env.VUE_APP_gqlFormUrl;
 
 export const mutation = {
   add: `mutation ($record: FormRecordInput) {
