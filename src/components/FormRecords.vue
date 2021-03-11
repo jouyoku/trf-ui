@@ -69,7 +69,6 @@ export default {
 				count--;
 			}
       await gql.getFormRecords(form.value, formFieldNames.value, fromId, count).then((r) => {
-				console.log(r);
         for (let i = 0; i < r.length; i++) {
           if (records.value[fromId + i]._id !== r[i]._id) {
             continue;
