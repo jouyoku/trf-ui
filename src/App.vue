@@ -6,11 +6,11 @@
     b-col
       #nav
         router-link(to='/') 首頁
-        |  |
+        |  |&nbsp;
         router-link(to='/list') 列表
-        |  |
+        |  |&nbsp;
         router-link(to='/form') 填寫
-        |  |
+        |  |&nbsp;
         router-link(to='/setup') 設定
   router-view
 </template>
