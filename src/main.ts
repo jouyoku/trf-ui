@@ -1,21 +1,21 @@
-import Vue from 'vue'
-import App from './App.vue'
-import './registerServiceWorker'
-import router from './router'
-import store from './store'
+import Vue from "vue";
+import App from "./App.vue";
+import "./registerServiceWorker";
+import router from "./router";
+import store from "./store";
 
-import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
-import 'bootstrap/dist/css/bootstrap.css'
-import 'bootstrap-vue/dist/bootstrap-vue.css'
-Vue.use(BootstrapVue)
-Vue.use(IconsPlugin)
+import { BootstrapVue, IconsPlugin } from "bootstrap-vue";
+import "bootstrap/dist/css/bootstrap.css";
+import "bootstrap-vue/dist/bootstrap-vue.css";
 
-import axios from 'axios'
-import VueAxios from 'vue-axios'
-Vue.use(VueAxios, axios)
+import axios from "axios";
+import VueAxios from "vue-axios";
 
-import VueCompositionAPI from '@vue/composition-api'
-Vue.use(VueCompositionAPI)
+import VueCompositionAPI from "@vue/composition-api";
+Vue.use(BootstrapVue);
+Vue.use(IconsPlugin);
+Vue.use(VueAxios, axios);
+Vue.use(VueCompositionAPI);
 /*
 import { ApolloClient } from 'apollo-client'
 import { HttpLink } from 'apollo-link-http'
@@ -57,7 +57,7 @@ export const apolloProvider = new VueApollo({
 })
 */
 
-Vue.config.productionTip = false
+Vue.config.productionTip = false;
 
 new Vue({
   /*
@@ -69,5 +69,5 @@ new Vue({
 */
   router,
   store,
-  render: h => h(App)
-}).$mount('#app')
+  render: (h) => h(App),
+}).$mount("#app");

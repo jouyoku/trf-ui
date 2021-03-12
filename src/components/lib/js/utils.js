@@ -4,10 +4,10 @@ import {
   createHttpLink,
   InMemoryCache
 } from '@apollo/client/core'
-//*/
+// */
 
 export function tags2str(tags) {
-  if (tags == "") {
+  if (tags === "") {
     tags = "[]";
   }
   const tmp = JSON.parse(tags);
@@ -20,21 +20,21 @@ export function tags2str(tags) {
 
 export function classObjectColumns(columns) {
   const tmp = {
-    "d-none": columns[0].cols == 0,
-    "d-sm-none": columns[1].cols == 0,
-    "d-md-none": columns[2].cols == 0,
-    "d-lg-none": columns[3].cols == 0,
-    "d-xl-none": columns[4].cols == 0,
+    "d-none": columns[0].cols === 0,
+    "d-sm-none": columns[1].cols === 0,
+    "d-md-none": columns[2].cols === 0,
+    "d-lg-none": columns[3].cols === 0,
+    "d-xl-none": columns[4].cols === 0,
     "d-block": columns[0].cols > 0,
     "d-sm-block": columns[1].cols > 0,
     "d-md-block": columns[2].cols > 0,
     "d-lg-block": columns[3].cols > 0,
     "d-xl-block": columns[4].cols > 0,
-    //"mt-3": item.marginTop > 0 ? item.marginTop : false,
+    // "mt-3": item.marginTop > 0 ? item.marginTop : false,
   };
   for (const key in columns) {
     let bp = columns[key].bp + "-";
-    if (columns[key].bp == "xs") {
+    if (columns[key].bp === "xs") {
       bp = "";
     }
     tmp["mt-" + bp + columns[key].mt] = columns[key].mt;
@@ -42,8 +42,8 @@ export function classObjectColumns(columns) {
     tmp["ml-" + bp + columns[key].ml] = columns[key].ml;
     tmp["mr-" + bp + columns[key].mr] = columns[key].mr;
   }
-  //if (item.marginTop > 0) {
-  //}
+  // if (item.marginTop > 0) {
+  // }
   return tmp;
 }
 
@@ -82,7 +82,7 @@ export function isSimpleInputField(type) {
     "date",
     "datetime",
     "email",
-    //"file",
+    // "file",
     "month",
     "password",
     "tel",
@@ -125,4 +125,4 @@ export function getApolloClient(uri) {
     cache,
   })
 }
-//*/
+// */

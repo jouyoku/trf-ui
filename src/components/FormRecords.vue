@@ -9,20 +9,14 @@
 			b-pagination(size="sm", :total-rows="records.length", v-model="currentPage", :per-page="perPage", align="fill", :limit="paginationLimit", first-number, last-number)
 	b-table(show-empty='', responsive='true', small, striped, sort-by="_id", sort-desc, :items="records", :fields="formHeaderFields", :per-page="perPage", :current-page="currentPage")
 		template(v-slot:cell(_actions)="row")
-			b-button.m-1(size='sm', :href='editRecordUrl(row.item._id)')
+			b-button.m-1(v-if="buttonEditRecord", size='sm', :href='editRecordUrl(row.item._id)')
 				| 編輯
-			b-button.m-1(size='sm', @click='deleteRecord(row.item._id)')
+			b-button.m-1(v-if="buttonDeleteRecord", size='sm', @click='deleteRecord(row.item._id)')
 				| 刪除
 </template>
 <script>
-import {
-  ref,
-  watch,
-  set,
-  toRefs,
-  computed,
-} from '@vue/composition-api';
-import * as gql from '@/components/lib/js/GraphQL.js'
+import { ref, watch, set, toRefs, computed } from "@vue/composition-api";
+import * as gql from "@/components/lib/js/GraphQL.js";
 
 export default {
   props: {
@@ -38,18 +32,34 @@ export default {
       type: Number,
       default: 5,
     },
+    buttonEditRecord: {
+      type: Boolean,
+      default: false,
+    },
+    buttonDeleteRecord: {
+      type: Boolean,
+      default: false,
+    },
+    hiddenFields: {
+      type: Array,
+      default: () => {
+        return [];
+      },
+    },
   },
   setup(props, context) {
     const {
       form,
       perPage,
-    } = toRefs(props)
+      buttonEditRecord,
+      buttonDeleteRecord,
+      hiddenFields,
+    } = toRefs(props);
 
     const currentPage = ref(1);
-    const formFields = ref([])
-    const formFieldNames = ref([])
-    const formField = ref("")
-    const records = ref([])
+    const formFields = ref([]);
+    const formFieldNames = ref([]);
+    const records = ref([]);
 
     const fetchPage = async (page) => {
       if (formFields.value.length <= 0) {
@@ -68,31 +78,46 @@ export default {
         }
         count--;
       }
-      await gql.getFormRecords(form.value, formFieldNames.value, fromId, count).then((r) => {
-        for (let i = 0; i < r.length; i++) {
-          if (records.value[fromId + i]._id !== r[i]._id) {
-            continue;
+      await gql
+        .getFormRecords(form.value, formFieldNames.value, fromId, count)
+        .then(
+          (r) => {
+            for (let i = 0; i < r.length; i++) {
+              if (records.value[fromId + i]._id !== r[i]._id) {
+                continue;
+              }
+              set(records.value, fromId + i, r[i]);
+              continue;
+            }
+          },
+          (e) => {
+            console.error(e);
           }
-          set(records.value, fromId + i, r[i]);
-          continue;
-        }
-      }, (e) => {
-        console.error(e);
-      });
-    }
+        );
+    };
 
     const formHeaderFields = computed(() => {
-      const tmp = [{
-        key: "_actions",
-        label: ""
-      }, {
-        key: "_id",
-        label: "ID"
-      }];
+      const tmp = [];
+      if (!hiddenFields.value.includes("_id")) {
+        tmp.push({
+          key: "_id",
+          label: "ID",
+        });
+      }
+
+      if (buttonEditRecord.value || buttonDeleteRecord.value) {
+        tmp.unshift({
+          key: "_actions",
+          label: "",
+        });
+      }
       for (const field of formFields.value) {
+        if (hiddenFields.value.includes(field.name)) {
+          continue;
+        }
         tmp.push({
           key: field.name,
-          label: field.comment
+          label: field.comment,
         });
       }
       return tmp;
@@ -101,57 +126,66 @@ export default {
     watch(
       form,
       async (newVal, oldVal) => {
-        if (newVal == "") {
+        if (newVal === "") {
           return;
         }
 
-        await gql.getFormFields(newVal).then((r) => {
-          formFields.value = r.fields;
-          formFieldNames.value = gql.formFieldNames(formFields.value);
-        }, (e) => {
-          console.error(e);
-        });
+        await gql.getFormFields(newVal).then(
+          (r) => {
+            formFields.value = r.fields;
+            formFieldNames.value = gql.formFieldNames(formFields.value);
+          },
+          (e) => {
+            console.error(e);
+          }
+        );
 
-        await gql.getFormRecordsId(newVal).then((r) => {
-          records.value = r;
-        }, (e) => {
-          console.error(e);
-        });
+        await gql.getFormRecordsId(newVal).then(
+          (r) => {
+            records.value = r;
+          },
+          (e) => {
+            console.error(e);
+          }
+        );
 
         fetchPage(currentPage.value);
-
-      }, {
+      },
+      {
         deep: true,
         sync: true,
       }
     );
 
     watch(currentPage, (newVal, oldVal) => {
-      fetchPage(newVal)
-    })
+      fetchPage(newVal);
+    });
 
     const editRecordUrl = (id) => {
-      return process.env.VUE_APP_editRecordUrl.replace("__FORM__", form.value).replace("__ID__", id)
-    }
+      return process.env.VUE_APP_editRecordUrl.replace(
+        "__FORM__",
+        form.value
+      ).replace("__ID__", id);
+    };
 
     const deleteRecord = async (id) => {
-      if (!await context.root.$bvModal.msgBoxConfirm("確定刪除資料？")) {
+      if (!(await context.root.$bvModal.msgBoxConfirm("確定刪除資料？"))) {
         return;
       }
 
-      if (!await gql.deleteRecord(form.value, id)) {
+      if (!(await gql.deleteRecord(form.value, id))) {
         context.root.$bvModal.msgBoxOk("刪除資料失敗！");
         return;
       }
 
       for (const key in records.value) {
-        if (records.value[key]["_id"] == id) {
+        if (records.value[key]._id === id) {
           records.value.splice(key, 1);
         }
       }
 
       fetchPage(currentPage.value);
-    }
+    };
 
     return {
       currentPage,

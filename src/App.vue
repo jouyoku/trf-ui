@@ -6,7 +6,7 @@
     b-col
       #nav
         router-link(to='/') 首頁
-        |  | 
+        |  |
         router-link(to='/list') 列表
         |  |
         router-link(to='/form') 填寫

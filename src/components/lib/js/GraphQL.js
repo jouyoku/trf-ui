@@ -1,16 +1,11 @@
-import axios from 'axios'
-import {
-  url as gqlFormsUrl,
-  query as gqlFormsQuery,
-} from "./graphqlForms.js";
+import axios from "axios";
+import { url as gqlFormsUrl, query as gqlFormsQuery } from "./graphqlForms.js";
 import {
   url as gqlFormUrl,
   query as gqlFormQuery,
   mutation as gqlFormMutation,
 } from "./graphqlForm.js";
-import {
-  whereStr
-} from "./utils.js"
+import { whereStr } from "./utils.js";
 
 export async function getForms() {
   try {
@@ -19,7 +14,7 @@ export async function getForms() {
     });
     return response.data.data.forms;
   } catch (error) {
-    console.error(error)
+    console.error(error);
     return false;
   }
 }
@@ -44,10 +39,10 @@ export async function getFormFields(form) {
     const res = {
       fields: response.data.data.fields,
       selects: {},
-      dates: []
+      dates: [],
     };
     for (const key in res.fields) {
-      if (typeof res.fields[key].attributes == 'string') {
+      if (typeof res.fields[key].attributes === "string") {
         res.fields[key].attributes = JSON.parse(res.fields[key].attributes);
       }
       switch (res.fields[key].type) {
@@ -68,17 +63,17 @@ export async function getFormFields(form) {
     }
     return res;
   } catch (error) {
-    console.error(error)
+    console.error(error);
     return false;
   }
 }
 
 export function gqlFormQueryRecordsId() {
-  return gqlFormQuery.records2.replace('__FIELDS__', '_id');
+  return gqlFormQuery.records2.replace("__FIELDS__", "_id");
 }
 
 export function gqlFormQueryRecords(formFieldNames) {
-  return gqlFormQuery.records2.replace('__FIELDS__', formFieldNames.join('\n'));
+  return gqlFormQuery.records2.replace("__FIELDS__", formFieldNames.join("\n"));
 }
 
 export async function getFormRecordsId(form) {
@@ -88,7 +83,7 @@ export async function getFormRecordsId(form) {
     });
     return response.data.data.records2;
   } catch (error) {
-    console.error(error)
+    console.error(error);
     return false;
   }
 }
@@ -111,7 +106,7 @@ export async function getFormRecords(form, formFieldNames, fromId, count) {
     });
     return response.data.data.records2;
   } catch (error) {
-    console.error(error)
+    console.error(error);
     return false;
   }
 }
@@ -126,7 +121,7 @@ export async function deleteRecord(form, id) {
     });
     return response.data.data.deleteRecord;
   } catch (error) {
-    console.error(error)
+    console.error(error);
     return false;
   }
 }
