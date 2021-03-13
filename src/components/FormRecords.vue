@@ -48,6 +48,8 @@ export default {
     },
   },
   setup(props, context) {
+    const _id = "FormRecords__" + context.attrs.id + "__";
+
     const {
       form,
       perPage,
@@ -57,6 +59,9 @@ export default {
     } = toRefs(props);
 
     const currentPage = ref(1);
+    if (localStorage.getItem(_id + "currentPage")) {
+      currentPage.value = localStorage.getItem(_id + "currentPage");
+    }
     const formFields = ref([]);
     const formFieldNames = ref([]);
     const records = ref([]);
@@ -123,33 +128,40 @@ export default {
       return tmp;
     });
 
+    const onFormChange = async (newVal) => {
+      await gql.getFormFields(newVal).then(
+        (r) => {
+          formFields.value = r.fields;
+          formFieldNames.value = gql.formFieldNames(formFields.value);
+        },
+        (e) => {
+          console.error(e);
+        }
+      );
+
+      await gql.getFormRecordsId(newVal).then(
+        (r) => {
+          records.value = r;
+        },
+        (e) => {
+          console.error(e);
+        }
+      );
+
+      fetchPage(currentPage.value);
+    };
+
+    if (form.value != "") {
+      onFormChange(form.value);
+    }
+
     watch(
       form,
       async (newVal, oldVal) => {
         if (newVal === "") {
           return;
         }
-
-        await gql.getFormFields(newVal).then(
-          (r) => {
-            formFields.value = r.fields;
-            formFieldNames.value = gql.formFieldNames(formFields.value);
-          },
-          (e) => {
-            console.error(e);
-          }
-        );
-
-        await gql.getFormRecordsId(newVal).then(
-          (r) => {
-            records.value = r;
-          },
-          (e) => {
-            console.error(e);
-          }
-        );
-
-        fetchPage(currentPage.value);
+        onFormChange(newVal);
       },
       {
         deep: true,
@@ -158,6 +170,7 @@ export default {
     );
 
     watch(currentPage, (newVal, oldVal) => {
+      localStorage.setItem(_id + "currentPage", newVal);
       fetchPage(newVal);
     });
 
