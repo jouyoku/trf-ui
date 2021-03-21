@@ -5,7 +5,7 @@ import {
   query as gqlFormQuery,
   mutation as gqlFormMutation,
 } from "./graphqlForm.js";
-import { whereStr } from "./utils.js";
+import { whereStr, whereStrContains } from "./utils.js";
 
 export async function getForms() {
   try {
@@ -120,6 +120,21 @@ export async function deleteRecord(form, id) {
       },
     });
     return response.data.data.deleteRecord;
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+}
+
+export async function formSearch(form, formFieldNames, search) {
+  try {
+    const response = await axios.post(gqlFormUrl1(form), {
+      query: gqlFormQueryRecords(formFieldNames),
+      variables: {
+        condition: "WHERE " + whereStrContains(search, formFieldNames),
+      },
+    });
+    return response.data.data.records2;
   } catch (error) {
     console.error(error);
     return false;

@@ -72,40 +72,7 @@ export default {
     const records = ref([]);
 
     const fetchPage = async (page) => {
-      /*
-      if (formFields.value.length <= 0) {
-        return;
-      }
-
-      let fromId = records.value.length - page * perPage.value;
-      let count = perPage.value;
-      if (fromId < 0) {
-        count = count + fromId;
-        fromId = 0;
-      }
-      for (let i = count - 1; i >= 0; i--) {
-        if (!records.value[fromId + i][formFields.value[0].name]) {
-          break;
-        }
-        count--;
-      }
-      await gql
-        .getFormRecords(form.value, formFieldNames.value, fromId, count)
-        .then(
-          (r) => {
-            for (let i = 0; i < r.length; i++) {
-              if (records.value[fromId + i]._id !== r[i]._id) {
-                continue;
-              }
-              set(records.value, fromId + i, r[i]);
-              continue;
-            }
-          },
-          (e) => {
-            console.error(e);
-          }
-        );
-				*/
+      console.log(page);
     };
 
     const formHeaderFields = computed(() => {
@@ -141,8 +108,7 @@ export default {
         return;
       }
 
-      /*
-      await gql.getFormFields(newVal).then(
+      await gql.getFormFields(form).then(
         (r) => {
           formFields.value = r.fields;
           formFieldNames.value = gql.formFieldNames(formFields.value);
@@ -152,7 +118,7 @@ export default {
         }
       );
 
-      await gql.getFormRecordsId(newVal).then(
+      await gql.formSearch(form, formFieldNames.value, search).then(
         (r) => {
           records.value = r;
         },
@@ -162,7 +128,6 @@ export default {
       );
 
       fetchPage(currentPage.value);
-			*/
     };
 
     onFormSearch(form.value, search.value);
@@ -170,6 +135,7 @@ export default {
     watch(
       form,
       async (newVal, oldVal) => {
+        console.log(newVal);
         onFormSearch(newVal, search.value);
       },
       {
@@ -181,6 +147,7 @@ export default {
     watch(
       search,
       async (newVal, oldVal) => {
+        console.log(newVal);
         onFormSearch(form.value, newVal);
       },
       {
