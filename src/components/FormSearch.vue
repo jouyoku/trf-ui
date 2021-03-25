@@ -3,16 +3,16 @@
 	b-row(v-if="records.length > perPage", size='sm')
 		b-col(md='6')
 			b-input-group(size='sm')
-				b-input-group-prepend(is-text) Page
+				b-input-group-prepend(is-text) {{ $t('頁次') }}
 				b-form-input(v-model="currentPage")
 		b-col(md='6')
 			b-pagination(size="sm", :total-rows="records.length", v-model="currentPage", :per-page="perPage", align="fill", :limit="paginationLimit", first-number, last-number)
 	b-table(foot-clone, responsive='true', small, striped, sort-by="_id", sort-desc, :items="records", :fields="formHeaderFields", :per-page="perPage", :current-page="currentPage")
 		template(v-slot:cell(_actions)="row")
 			b-button.m-1(v-if="buttonEditRecord", size='sm', :href='editRecordUrl(row.item._id)')
-				| 編輯
+				| {{ $t('編輯') }}
 			b-button.m-1(v-if="buttonDeleteRecord", size='sm', @click='deleteRecord(row.item._id)')
-				| 刪除
+				| {{ $t('刪除') }}
 </template>
 <script>
 import { ref, watch, set, toRefs, computed } from "@vue/composition-api";
@@ -51,7 +51,23 @@ export default {
       },
     },
   },
+  /*
+  data() {
+    this.$i18n.locale = "en";
+    return { locale: "en" };
+  },
+  watch: {
+    locale(val) {
+      this.$i18n.locale = val;
+    },
+  },
+  mounted: function () {
+    console.log(this.$i18n.setLocaleMessage);
+    this.$i18n.locale = "zh";
+  },
+*/
   setup(props, context) {
+    console.log(context);
     const _id = "FormSearch__" + context.attrs.id + "__";
 
     const {
@@ -72,7 +88,8 @@ export default {
     const records = ref([]);
 
     const fetchPage = async (page) => {
-      console.log(page);
+      //console.log(page);
+      page++;
     };
 
     const formHeaderFields = computed(() => {
@@ -135,7 +152,6 @@ export default {
     watch(
       form,
       async (newVal, oldVal) => {
-        console.log(newVal);
         onFormSearch(newVal, search.value);
       },
       {
@@ -147,7 +163,6 @@ export default {
     watch(
       search,
       async (newVal, oldVal) => {
-        console.log(newVal);
         onFormSearch(form.value, newVal);
       },
       {
@@ -198,3 +213,5 @@ export default {
   },
 };
 </script>
+<i18n src="./i18n/FormSearch.json">
+</i18n>
