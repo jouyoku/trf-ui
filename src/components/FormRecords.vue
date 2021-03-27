@@ -1,18 +1,32 @@
+<i18n>
+{
+  "en-US": {
+    "頁次": "Page",
+    "編輯": "Edit",
+    "刪除": "Delete"
+  },
+  "zh-TW": {
+    "頁次": "頁次",
+    "編輯": "編輯",
+    "刪除": "刪除"
+  }
+}
+</i18n>
 <template lang="pug">
 .list
 	b-row(v-if="records.length > perPage", size='sm')
 		b-col(md='6')
 			b-input-group(size='sm')
-				b-input-group-prepend(is-text) Page
+				b-input-group-prepend(is-text) {{ $t('頁次') }}
 				b-form-input(v-model="currentPage")
 		b-col(md='6')
 			b-pagination(size="sm", :total-rows="records.length", v-model="currentPage", :per-page="perPage", align="fill", :limit="paginationLimit", first-number, last-number)
 	b-table(foot-clone, responsive='true', small, striped, sort-by="_id", sort-desc, :items="records", :fields="formHeaderFields", :per-page="perPage", :current-page="currentPage")
 		template(v-slot:cell(_actions)="row")
 			b-button.m-1(v-if="buttonEditRecord", size='sm', :href='editRecordUrl(row.item._id)')
-				| 編輯
+				| {{ $t('編輯') }}
 			b-button.m-1(v-if="buttonDeleteRecord", size='sm', @click='deleteRecord(row.item._id)')
-				| 刪除
+				| {{ $t('刪除') }}
 </template>
 <script>
 import { ref, watch, set, toRefs, computed } from "@vue/composition-api";

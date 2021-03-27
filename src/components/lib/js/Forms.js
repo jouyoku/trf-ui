@@ -22,11 +22,11 @@ export function Forms() {
     })
     .then(
       (result) => {
-        // console.log(result)
+        //console.log(result)
         forms.value = result.data.data.forms;
       },
       (error) => {
-        console.log(error);
+        console.error(error);
       }
     );
 
@@ -37,7 +37,7 @@ export function Forms() {
     //console.log(result)
     forms.value = _.cloneDeep(result.data.forms);
   }, (error) => {
-    console.log(error)
+    console.error(error)
   });
 // */
   return {

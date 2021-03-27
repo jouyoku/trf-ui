@@ -45,7 +45,7 @@ const Trans = {
   changeLocale(locale) {
     if (!Trans.isLocaleSupported(locale))
       return Promise.reject(new Error("Locale not supported"));
-    if (i18n.locale === locale) return Promise.resolve(locale);
+    //if (i18n.locale === locale) return Promise.resolve(locale);
     return Trans.loadLocaleFile(locale).then((msgs) => {
       i18n.setLocaleMessage(locale, msgs.default || msgs);
       return Trans.setI18nLocaleInServices(locale);

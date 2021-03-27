@@ -1,15 +1,29 @@
+<i18n>
+  {
+    "en-US": {
+      "表單": "Form",
+      "結束": "Back",
+      "搜尋": "Search"
+    },
+    "zh-TW": {
+      "表單": "表單",
+      "結束": "結束",
+      "搜尋": "搜尋"
+    }
+  }
+</i18n>
 <template lang="pug">
 .list
   b-row
     b-col(md='6')
       b-input-group(size='sm')
-        b-input-group-prepend(is-text) Form
+        b-input-group-prepend(is-text) {{ $t('表單') }}
         b-form-select(v-model="form", :options="formNames" @change="onFormChange")
     b-col(md='6')
       b-input-group(size='sm')
         b-input-group-prepend
-          b-button.mr-1(v-show="searchMode", @click="searchStop()") Back
-          b-button(@click="searchStart()") Search
+          b-button.mr-1(v-show="searchMode", @click="searchStop()") {{ $t('結束') }}
+          b-button(@click="searchStart()") {{ $t('搜尋') }}
         b-form-input(type="text", v-model="searchString")
   FormRecords#page-list(v-show="!searchMode", :form="form", button-edit-record, button-delete-record)
   FormSearch#page-list(v-show="searchMode", :form="searchForm", :search="search", button-edit-record, button-delete-record)

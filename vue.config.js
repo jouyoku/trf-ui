@@ -1,5 +1,4 @@
 module.exports = {
-  publicPath: '/aleba',
   chainWebpack: config => {
     config.module
       .rule('i18n')

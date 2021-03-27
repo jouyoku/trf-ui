@@ -1,3 +1,5 @@
+<i18n src="./i18n/FormSearch.json">
+</i18n>
 <template lang="pug">
 .list
 	b-row(v-if="records.length > perPage", size='sm')
@@ -67,7 +69,7 @@ export default {
   },
 */
   setup(props, context) {
-    console.log(context);
+    //console.log(context);
     const _id = "FormSearch__" + context.attrs.id + "__";
 
     const {
@@ -213,5 +215,3 @@ export default {
   },
 };
 </script>
-<i18n src="./i18n/FormSearch.json">
-</i18n>

@@ -1,8 +1,24 @@
+<i18n>
+  {
+    "en-US": {
+      "首頁": "Home",
+      "列表": "List",
+      "填表": "Edit",
+      "設定": "Setup"
+    },
+    "zh-TW": {
+      "首頁": "首頁",
+      "列表": "列表",
+      "填表": "填表",
+      "設定": "設定"
+    }
+  }
+</i18n>
 <template lang="pug">
 #app
   b-row(align-v="center")
     b-col
-      h3 記錄
+      h3 Form2
     b-col
       #nav
         router-link(:to="'/' + $i18n.locale") {{ $t('首頁') }}
@@ -12,7 +28,7 @@
         router-link(:to="'/' + $i18n.locale + '/form'") {{ $t('填表') }}
         |  |&nbsp;
         router-link(:to="'/' + $i18n.locale + '/setup'") {{ $t('設定') }}
-    b-col(cols="auto")
+    //b-col(cols="auto")
       b-form-select(size="sm", v-model="locale", :options="languages")
   router-view
 </template>
@@ -43,9 +59,16 @@
 import { ref, watch } from "@vue/composition-api";
 
 export default {
+  watch: {
+    $route: function() {
+      // 在这里强制更新
+      console.log('aaa')
+      this.$forceUpdate();
+    }
+  },
   setup(props, context) {
-    console.log(context, context.root.$i18n.locale);
-    const locale = ref("zh-TW");
+    //console.log(context, context.root.$i18n.locale);
+    const locale = ref(context.root.$i18n.locale);
     //if (localStorage.getItem("locale")) {
     //  locale.value = localStorage.getItem("locale");
     //}
@@ -56,10 +79,18 @@ export default {
     ]);
 
     watch(locale, (val, oldVal) => {
-      console.log(val, location);
+      //console.log(val, oldVal, location);
       //localStorage.setItem("locale", val);
       context.root.$i18n.locale = val;
-      //location.replace(process.env.BASE_URL + "/" + val + "/list");
+      const tmp = location.href.replace(oldVal, val)
+      location.replace(tmp)
+/*
+      window.history.pushState(
+        null,
+        null,
+        location.origin + "/" + val + location.pathname.substring(location.pathname.indexOf(oldVal) + oldVal.length)
+      )
+//*/
     });
 
     return {
@@ -69,19 +100,3 @@ export default {
   },
 };
 </script>
-<i18n>
-  {
-    "en-US": {
-      "首頁": "Home",
-      "列表": "List",
-      "填表": "Edit",
-      "設定": "Setup"
-    },
-    "zh-TW": {
-      "首頁": "首頁",
-      "列表": "列表",
-      "填表": "填表",
-      "設定": "設定"
-    }
-  }
-</i18n>

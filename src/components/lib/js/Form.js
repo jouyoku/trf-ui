@@ -121,7 +121,7 @@ export function Form(formName) {
           }
         },
         (error) => {
-          console.log("error", error);
+          console.error("error", error);
         }
       );
   };
@@ -177,7 +177,7 @@ export function Form(formName) {
             }
           },
           (error) => {
-            console.log("error", error);
+            console.error("error", error);
           }
         );
 
@@ -197,7 +197,7 @@ export function Form(formName) {
             updateRecords(i, count);
           },
           (error) => {
-            console.log("error", error);
+            console.error("error", error);
           }
         );
     },

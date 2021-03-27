@@ -45,7 +45,7 @@ export const i18n = new VueI18n({
 */
 export const i18n = new VueI18n({
   locale: window.navigator.language,
-  fallbackLocale: [window.navigator.language, "zh-TW"],
+  fallbackLocale: ["zh-TW"],
   formatFallbackMessages: true,
   silentFallbackWarn: true,
   messages: {},
