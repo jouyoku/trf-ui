@@ -60,11 +60,10 @@ import { ref, watch } from "@vue/composition-api";
 
 export default {
   watch: {
-    $route: function() {
+    $route: function () {
       // 在这里强制更新
-      console.log('aaa')
       this.$forceUpdate();
-    }
+    },
   },
   setup(props, context) {
     //console.log(context, context.root.$i18n.locale);
@@ -82,9 +81,9 @@ export default {
       //console.log(val, oldVal, location);
       //localStorage.setItem("locale", val);
       context.root.$i18n.locale = val;
-      const tmp = location.href.replace(oldVal, val)
-      location.replace(tmp)
-/*
+      const tmp = location.href.replace(oldVal, val);
+      location.replace(tmp);
+      /*
       window.history.pushState(
         null,
         null,

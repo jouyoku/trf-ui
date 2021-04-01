@@ -37,6 +37,13 @@ const routes: Array<RouteConfig> = [
         path: "setup",
         name: "Setup",
         component: Setup,
+        children: [
+          {
+            path: ":form",
+            name: "SetupForm",
+            component: Setup,
+          },
+        ],
       },
       {
         path: "home0",
