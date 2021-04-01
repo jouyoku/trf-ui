@@ -1,0 +1,130 @@
+include DragAndDrop.pug
+
+mixin fieldCheckboxRadioSelectOptions(fieldsEdit, optionsEdit, optionsDND)
+  b-col.mt-1(md='6', v-if!=fieldsEdit + ".type.value == 'checkbox' || " + fieldsEdit + ".type.value == 'radio' || " + fieldsEdit + ".type.value == 'select'")
+    b-input-group(size='sm')
+      b-input-group-prepend
+        +dndButtons(optionsDND)
+      b-input-group-prepend(is-text='')
+        | 選項名稱
+      b-form-input(type="text", v-model!=optionsEdit + ".name.value", :state!=optionsDND + ".isNameNew.value")
+  b-col.mt-1(md='6', v-if!=fieldsEdit + ".type.value == 'checkbox' || " + fieldsEdit + ".type.value == 'radio' || " + fieldsEdit + ".type.value == 'select'")
+    +formInput(optionsEdit + '.prepend.value', 'text', '', '選項文字', "''")
+  b-col.mt-1(md='6', v-if!=fieldsEdit + ".type.value == 'select'")
+    +formInput(optionsEdit + '.append.value', 'text', '', '符合欄位', "''")
+  b-col.mt-1(md='6', v-if!=fieldsEdit + ".type.value == 'select'")
+    +formInput(optionsEdit + '.image.value', 'text', '', '符合數值', "''")
+  b-col.mt-1(md='6', v-if!=fieldsEdit + ".type.value == 'checkbox' || " + fieldsEdit + ".type.value == 'radio'")
+    +formInput(optionsEdit + '.image.value', 'text', '圖片網址', '選項圖片', "'選項圖片'")
+  b-col.mt-1(md='6', v-if!=fieldsEdit + ".type.value == 'checkbox' || " + fieldsEdit + ".type.value == 'radio'")
+    +formInput(optionsEdit + '.append.value', 'text', '', '圖片後置文字', "''")
+  b-col.mt-1(md='6', v-if!=fieldsEdit + ".type.value == 'checkbox' || " + fieldsEdit + ".type.value == 'radio'")
+    +formInput(optionsEdit + '.imageWidth.value', 'number', '', '圖片寬度', "''")
+  b-col.mt-1(md='6', v-if!=fieldsEdit + ".type.value == 'checkbox' || " + fieldsEdit + ".type.value == 'radio'")
+    +formInput(optionsEdit + '.imageHeight.value', 'number', '', '圖片高度', "''")
+  b-col.mt-1(md='12', v-if!=fieldsEdit + ".type.value == 'checkbox' || " + fieldsEdit + ".type.value == 'radio' || " + fieldsEdit + ".type.value == 'select'")
+    b-row
+      b-col(v-for="(item, key) in options"
+      , :style!="{'border': key == " + optionsDND + ".current.value ? '1px solid gold' : '1px solid lightgrey'}")&attributes(dndAttributes(optionsDND))
+        span {{item.prepend}}
+        img.px-1(v-if!=fieldsEdit + ".type.value != 'select'", :src="item.image", :width="(item.imageWidth > 0) ? item.imageWidth : false", :height="(item.imageHeight > 0) ? item.imageHeight : false")
+        span(v-if!=fieldsEdit + ".type.value != 'select'") {{item.append}}
+    //table.table.table-striped
+      thead.thead-dark
+        //tr
+          th(scope='col')
+            b-form-checkbox(@change="toggleAllHidden") 隱藏
+          th(scope='col') 類型
+          th(scope='col') 名稱
+          th(scope='col') 說明
+        tr(v-for!='(item, key) in options'
+          , :style!="{'background-color': key == " + optionsDND + ".current.value ? 'gold' : 'white'}")&attributes(dndAttributes(optionsDND))
+          td {{ item.prepend }}
+          td {{ item.image }}
+          td {{ item.append }}
+        
+mixin fieldFormOptions(fieldsEdit, optionsEdit, optionsDND)
+  b-col.mt-1(md='6', v-if!=fieldsEdit + ".type.value == 'form'")
+    +formSelect(fieldsEdit + ".form.value", fieldsEdit + ".formNames.value", '嵌入表單', "''")
+  b-col.mt-1(md='6', v-if!=fieldsEdit + ".type.value == 'form'")
+    +formSelect(fieldsEdit + ".formMode.value", fieldsEdit + ".formModes.value", '嵌入模式', "''")
+  b-col.mt-1(md='6', v-if!=fieldsEdit + ".type.value == 'form' && " + fieldsEdit + ".formMode.value == 0")
+    +formSelect(fieldsEdit + '.formField.value', fieldsEdit + '.formFieldNames.value', lable='嵌入表單欄位')
+  b-col.mt-1(md='6', v-if!=fieldsEdit + ".type.value == 'form' && " + fieldsEdit + ".formMode.value == 0")
+    +formSelect(fieldsEdit + '.matchField.value', fieldsEdit + '.fieldNames.value', lable='本表對應欄位')
+  b-col.mt-1(md='6', v-if!=fieldsEdit + ".type.value == 'form' && " + fieldsEdit + ".formMode.value == 0")
+    +formSelect(fieldsEdit + '.formMode0Block.value', fieldsEdit + '.formMode0Blocks.value', lable='段落')
+  b-col.mt-1(md='6', v-if!=fieldsEdit + ".type.value == 'form' && " + fieldsEdit + ".formMode.value == 0")
+    b-input-group(size='sm')
+      b-input-group-prepend
+        +dndButtons(optionsDND)
+      b-input-group-prepend(is-text='')
+        | 欄位類型
+      b-form-select(v-model!=optionsEdit + '.append.value', :options!=fieldsEdit + '.formMode0FieldNames.value', v-b-popover.hover.top!="''")
+  b-col.mt-1(md='6', v-if!=fieldsEdit + ".type.value == 'form' && " + fieldsEdit + ".formMode.value == 0")
+    +formInput(optionsEdit + '.name.value', 'text', '', '欄位名稱', "''")
+  b-col.mt-1(md='6', v-if!=fieldsEdit + ".type.value == 'form' && " + fieldsEdit + ".formMode.value == 0")
+    +formInput(optionsEdit + '.prepend.value', 'text', '', '欄位標籤', "''")
+  b-col.mt-1(md='12', v-if!=fieldsEdit + ".type.value == 'form' && " + fieldsEdit + ".formMode.value == 0")
+    b-row
+      b-col(v-for="(item, key) in options"
+      , :style!="{'border': key == " + optionsDND + ".current.value ? '1px solid gold' : '1px solid lightgrey'}")&attributes(dndAttributes(optionsDND))
+        span {{item.prepend}}
+        //img.px-1(v-if!=fieldsEdit + ".type.value != 'select'", :src="item.image", :width="(item.imageWidth > 0) ? item.imageWidth : false", :height="(item.imageHeight > 0) ? item.imageHeight : false")
+        //span(v-if!=fieldsEdit + ".type.value != 'select'") {{item.append}}
+      
+  //b-col.mt-1(md='6', v-if!=fieldsEdit + ".type.value == 'form'")
+    | {{#{fieldsEdit + ".formComment.value"}}}
+  b-col.mt-1(md='6', v-if!=fieldsEdit + ".type.value == 'form' && " + fieldsEdit + ".formMode.value == 1")
+    b-row
+      b-form-checkbox.ml-3(v-model!=fieldsEdit + ".formIsCreatable.value") 可新增
+      b-form-checkbox.ml-3(v-model!=fieldsEdit + ".formIsRemovable.value") 可刪除
+  b-col.mt-1(md='6', v-if!=fieldsEdit + ".type.value == 'form' && " + fieldsEdit + ".formMode.value == 1")
+    +formSelect(fieldsEdit + ".formShowFields.value", fieldsEdit + ".formShowFieldNames.value", '顯示欄位', "''", {'multiple': true})
+  b-col.mt-1(md='6', v-if!=fieldsEdit + ".type.value == 'form' && " + fieldsEdit + ".formMode.value == 1")
+    +formSelect(fieldsEdit + ".formEditFields.value", fieldsEdit + ".formEditFieldNames.value", '輸入欄位', "''", {'multiple': true})
+  //b-col.mt-1(md='6', v-if!=fieldsEdit + ".type.value == 'form' && " + fieldsEdit + ".formMode.value == 1")
+    +formSelect(fieldsEdit + '.form.value', fieldsEdit + '.forms.value', lable='嵌入表單')
+  
+mixin fieldOptions(fieldsEdit, fieldsDND, fieldOptionsEdit, fieldOptionsDND)
+  b-row
+    b-col.mt-1(md='6')
+      b-input-group(size='sm')
+        b-input-group-prepend
+          +dndButtons(fieldsDND)
+        b-input-group-prepend.px-3.pt-1(v-if!=fieldsEdit + ".type.value == 'select'")
+          b-form-checkbox(v-model!=fieldsEdit + ".isSelectMultiple.value", value="true", unchecked-value="false") 複選
+        b-form-select(v-model!=fieldsEdit + ".type.value", :options!=fieldsEdit + ".types.value", v-b-popover.hover.top!="'選擇欄位的資料類型'")
+    b-col.mt-1(md='6')
+      +formInput(fieldsEdit + ".name.value", 'text', '必填，英數，開頭必須英文', '名稱', "'欄位的識別名稱，必填而且不能與既有的欄位名稱重複。英數，開頭必須英文'", {":state":fieldsDND + '.isNameNew.value'})
+    b-col.mt-1(md='6')
+      +formInput(fieldsEdit + ".comment.value", 'text', '', '說明', "'說明欄位用途，備忘之用'")
+    b-col.mt-1(md='6')
+      +formInput(fieldsEdit + ".init.value", 'text', '', '初始', "'欄位的初始值'")
+    b-col.mt-1(md='6', v-if!=fieldsEdit + ".type.value == 'number' || " + fieldsEdit + ".type.value == 'range'")
+      +formInput(fieldsEdit + ".min.value", 'number', '', 'Min', "'最小值'")
+    b-col.mt-1(md='6', v-if!=fieldsEdit + ".type.value == 'number' || " + fieldsEdit + ".type.value == 'range'")
+      +formInput(fieldsEdit + ".max.value", 'number', '', 'Max', "'最大值'")
+    b-col.mt-1(md='6', v-if!=fieldsEdit + ".type.value == 'number' || " + fieldsEdit + ".type.value == 'range'")
+      +formInput(fieldsEdit + ".step.value", 'number', '', 'Step', "'間隔'")
+    b-col.mt-1(md='6', v-if!=fieldsEdit + ".type.value == 'rating'")
+      +formInput(fieldsEdit + ".ratingStars.value", 'number', '', '星星總數', "''", {"min": 1})
+    +fieldCheckboxRadioSelectOptions(fieldsEdit, fieldOptionsEdit, fieldOptionsDND)
+    +fieldFormOptions(fieldsEdit, fieldOptionsEdit, fieldOptionsDND)
+
+mixin fields(fields, fieldsDND)
+  table.table.table-striped
+    thead.thead-dark
+      tr
+        //th(scope='col')
+          b-form-checkbox(@change="toggleAllHidden") 隱藏
+        th(scope='col') 類型
+        th(scope='col') 名稱
+        th(scope='col') 說明
+      tr(v-for!='(item, key) in ' + fields
+        , :style!="{'background-color': key == " + fieldsDND + ".current.value ? 'gold' : 'white'}")&attributes(dndAttributes(fieldsDND))
+        //td
+          b-form-checkbox(v-model="item.hidden", @change="toggleHidden(key, item.hidden)") 
+        td {{ item.type }}
+        td {{ item.name }}
+        td {{ item.comment }}

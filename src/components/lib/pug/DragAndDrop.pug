@@ -1,0 +1,18 @@
+-
+  function dndAttributes(dnd) {
+    var tmp = {};
+    if(dnd == '') {
+      return tmp;
+    }
+    tmp['@click'] = dnd + " == '' ? '' : " + dnd + ".current.value = key;";
+    tmp['draggable'] = dnd + " == '' ? 'false' : 'true'";
+    tmp['@dragstart'] = dnd + " == '' ? '' : " + dnd + ".onDrag(event, key);";
+    tmp['@drop'] = dnd + " == '' ? '' : " + dnd + ".onDrop(event, key);";
+    tmp['@dragover'] = dnd + " == '' ? '' : " + dnd + ".onDragOver(event, key);";
+    return tmp;
+  }
+
+mixin dndButtons(dnd)
+  b-button(:disabled!="!" + dnd + ".isNameNew.value", @click!=dnd + '.add();') 新增
+  b-button(:disabled!=dnd + ".current.value < 0", @click!=dnd + '.change();') 變更
+  b-button(:disabled!=dnd + ".current.value < 0", @click!=dnd + '.remove();') 刪除

@@ -1,33 +1,13 @@
 <template lang="pug">
-include lib/pug/Field.pug
-
-div
-	//| {{formFields}}
-	+fields('formFields')
-	//table.table.table-striped
-		thead.thead-dark
-			tr
-				//th(scope='col')
-					b-form-checkbox(@change="toggleAllHidden") 隱藏
-				th(scope='col') 類型
-				th(scope='col') 名稱
-				th(scope='col') 說明
-			//tr(v-for='(item, key) in  + formFields'
-				, :style!="{'background-color': key == " + fieldsDND + ".current.value ? 'gold' : 'white'}")&attributes(dndAttributes(fieldsDND))
-			tr(v-for='(item, key) in formFields')
-				//td
-					b-form-checkbox(v-model="item.hidden", @change="toggleHidden(key, item.hidden)")
-				td {{ item.type }}
-				td {{ item.name }}
-				td {{ item.comment }}
-	//b-row(v-if="records.length > perPage", size='sm')
+.list
+	b-row(v-if="records.length > perPage", size='sm')
 		b-col(md='6')
 			b-input-group(size='sm')
 				b-input-group-prepend(is-text) Page
 				b-form-input(v-model="currentPage")
 		b-col(md='6')
 			b-pagination(size="sm", :total-rows="records.length", v-model="currentPage", :per-page="perPage", align="fill", :limit="paginationLimit", first-number, last-number)
-	//b-table(show-empty='', responsive='true', small, striped, sort-by="_id", sort-desc, :items="records", :fields="formHeaderFields", :per-page="perPage", :current-page="currentPage")
+	b-table(show-empty='', responsive='true', small, striped, sort-by="_id", sort-desc, :items="records", :fields="formHeaderFields", :per-page="perPage", :current-page="currentPage")
 		template(v-slot:cell(_actions)="row")
 			b-button.m-1(v-if="buttonEditRecord", size='sm', :href='editRecordUrl(row.item._id)')
 				| 編輯
@@ -152,7 +132,6 @@ export default {
 
         await gql.getFormFields(newVal).then(
           (r) => {
-            console.log(newVal, "dasdf", r);
             formFields.value = r.fields;
             formFieldNames.value = gql.formFieldNames(formFields.value);
           },
