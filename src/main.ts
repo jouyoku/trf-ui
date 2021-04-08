@@ -4,7 +4,7 @@ import "./registerServiceWorker";
 import "./BootstrapVue.js";
 import router from "./router";
 import store from "./store";
-import { i18n } from "./i18n.js";
+import { i18n } from "./i18n";
 import VueCompositionAPI from "@vue/composition-api";
 
 Vue.use(VueCompositionAPI);

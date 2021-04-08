@@ -1,17 +1,3 @@
-<i18n>
-{
-  "en-US": {
-    "頁次": "Page",
-    "編輯": "Edit",
-    "刪除": "Delete"
-  },
-  "zh-TW": {
-    "頁次": "頁次",
-    "編輯": "編輯",
-    "刪除": "刪除"
-  }
-}
-</i18n>
 <template lang="pug">
 .list
 	b-row(v-if="records.length > perPage", size='sm')

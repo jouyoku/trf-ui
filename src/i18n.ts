@@ -43,10 +43,12 @@ export const i18n = new VueI18n({
   numberFormats,
 });
 */
-export const i18n = new VueI18n({
+const i18n = new VueI18n({
   locale: window.navigator.language,
   fallbackLocale: ["zh-TW"],
   formatFallbackMessages: true,
   silentFallbackWarn: true,
   messages: {},
 });
+
+export { i18n };

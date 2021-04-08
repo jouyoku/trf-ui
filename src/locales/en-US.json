@@ -1,5 +1,9 @@
 {
   "頁次": "Page",
   "編輯": "Edit",
-  "刪除": "Delete"
+  "刪除": "Delete",
+  "首頁": "Home",
+  "列表": "List",
+  "填表": "Edit",
+  "設定": "Setup"
 }
