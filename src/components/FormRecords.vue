@@ -14,7 +14,7 @@
         b-form-input(v-model="currentPage")
     b-col(md='6')
       b-pagination(size="sm", :total-rows="records.length", v-model="currentPage", :per-page="perPage", align="fill", :limit="paginationLimit", first-number, last-number)
-  b-table(foot-clone, responsive='true', small, striped, sort-by="_id", sort-desc, :items="records", :fields="formHeaderFields", :per-page="perPage", :current-page="currentPage")
+  b-table(foot-clone, responsive='true', small, striped, sort-by="_id", sort-desc, :items="records", :fields="formHeaderFields", :per-page="perPage", :current-page="currentPage", :sticky-header="stickyHeaders == null ? false : stickyHeaders")
     template(v-slot:cell(_actions)="row")
       b-button.m-1(v-if="buttonEditRecord", size='sm', :href='editRecordUrl(row.item._id)')
         | {{ $t('編輯') }}
@@ -52,6 +52,10 @@ export default {
       default: () => {
         return [];
       },
+    },
+    stickyHeaders: {
+      type: String,
+      default: null,
     },
   },
   setup(props, context) {

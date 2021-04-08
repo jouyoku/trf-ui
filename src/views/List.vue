@@ -5,7 +5,7 @@
       b-input-group(size='sm')
         b-input-group-prepend(is-text) {{ $t('表單') }}
         b-form-select(v-model="form", :options="formNames" @change="onFormChange")
-  FormRecords#page-list(:form="form", button-edit-record, button-delete-record)
+  FormRecords#page-list(:form="form", button-edit-record, button-delete-record, sticky-headers="150px")
 </template>
 <script>
 import { ref, watch } from "@vue/composition-api";
