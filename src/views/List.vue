@@ -5,19 +5,18 @@
       b-input-group(size='sm')
         b-input-group-prepend(is-text) {{ $t('表單') }}
         b-form-select(v-model="form", :options="formNames" @change="onFormChange")
-  FormRecords#page-list(:form="form", button-edit-record, button-delete-record, sticky-headers="150px")
+  FormRecords#page-list(:form="form", button-edit-record, button-delete-record)
 </template>
 <script>
-import { ref, watch } from "@vue/composition-api";
+import { ref } from "@vue/composition-api";
 import FormRecords from "@/components/FormRecords.vue"; // @ is an alias to /src
 import * as gql from "@/components/lib/js/GraphQL.js";
 
 export default {
-  props: {},
   components: {
     FormRecords,
   },
-  setup(props, context) {
+  setup() {
     const _id = "List__";
 
     const forms = ref([]);

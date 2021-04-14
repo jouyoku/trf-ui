@@ -1,29 +1,57 @@
 <template lang="pug">
 .list
   b-row
-    b-col(md='6')
+    b-col(md='6', v-show="useMode !== 'settings'")
       b-input-group(size='sm')
         b-input-group-prepend
-          b-button.mr-1(v-show="searchMode", @click="searchStop()") {{ $t('結束') }}
+          b-button.mr-1(v-show="useMode === 'search'", @click="searchStop()") {{ $t('結束') }}
           b-button(@click="searchStart()") {{ $t('搜尋') }}
         b-form-input(type="text", v-model="searchString")
-  b-row(v-if="records.length > perPage", size='sm')
+    b-col(md='6', v-show="useMode !== 'settings'")
+      b-input-group(size='sm')
+        b-input-group-prepend
+          b-button.mr-1(size='sm', @click="settings()") {{ $t('設定') }}
+    b-col(md='6', v-show="useMode === 'settings'")
+      b-input-group(size='sm')
+        b-input-group-prepend
+          b-button.mr-1(size='sm', @click="settingsExit()") {{ $t('離開設定') }}
+          b-button.mr-1(size='sm', @click="settingsSave()") {{ $t('儲存設定') }}
+          b-button.mr-1(size='sm', @click="settingsSaveLocal()") {{ $t('儲存為個人設定') }}
+  b-row(v-show="(useMode === 'all' || useMode === 'search') && records.length > perPage", size='sm')
     b-col(md='6')
       b-input-group(size='sm')
         b-input-group-prepend(is-text) {{ $t('頁次') }}
         b-form-input(v-model="currentPage")
     b-col(md='6')
       b-pagination(size="sm", :total-rows="records.length", v-model="currentPage", :per-page="perPage", align="fill", :limit="paginationLimit", first-number, last-number)
-  b-table(foot-clone, responsive='true', small, striped, sort-by="_id", sort-desc, :items="records", :fields="formHeaderFields", :per-page="perPage", :current-page="currentPage", :sticky-header="stickyHeaders == null ? false : stickyHeaders")
+  b-table(v-show="useMode === 'all' || useMode === 'search'", foot-clone, responsive='true', small, striped, sort-by="_id", sort-desc, :items="records", :fields="formHeaderFields", :per-page="perPage", :current-page="currentPage", :sticky-header="stickyHeaders === null ? false : stickyHeaders")
     template(v-slot:cell(_actions)="row")
-      b-button.m-1(v-if="buttonEditRecord", size='sm', :href='editRecordUrl(row.item._id)')
+      b-button.m-1(v-show="buttonEditRecord", size='sm', :href='editRecordUrl(row.item._id)')
         | {{ $t('編輯') }}
-      b-button.m-1(v-if="buttonDeleteRecord", size='sm', @click='deleteRecord(row.item._id)')
+      b-button.m-1(v-show="buttonDeleteRecord", size='sm', @click='deleteRecord(row.item._id)')
         | {{ $t('刪除') }}
+  table.table.table-striped(v-show="useMode === 'settings'")
+    thead.thead-dark
+      tr
+        th(scope='col')
+          b-form-checkbox(@change="toggleAllHidden") {{ $t('隱藏') }}
+        th(scope='col') {{ $t('類型') }}
+        th(scope='col') {{ $t('名稱') }}
+        th(scope='col') {{ $t('說明') }}
+    tbody
+      tr(v-for='(item, key) in formFields')
+        //, :style!="{'background-color': key == " + fieldsDND + ".current.value ? 'gold' : 'white'}")&attributes(dndAttributes(fieldsDND))
+        td
+          b-form-checkbox(v-model="item.hidden", @change="toggleHidden(key, item.hidden)")
+        td {{ item.type }}
+        td {{ item.name }}
+        td {{ $t(item.comment) }}
+
 </template>
 <script>
 import { ref, watch, set, toRefs, computed } from "@vue/composition-api";
 import * as gql from "@/components/lib/js/GraphQL.js";
+import _ from "lodash";
 
 export default {
   props: {
@@ -47,12 +75,6 @@ export default {
       type: Boolean,
       default: false,
     },
-    hiddenFields: {
-      type: Array,
-      default: () => {
-        return [];
-      },
-    },
     stickyHeaders: {
       type: String,
       default: null,
@@ -60,19 +82,18 @@ export default {
   },
   setup(props, context) {
     const _id = "FormRecords__" + context.attrs.id + "__";
+    const _bvModal = context.root.$bvModal;
+    const _i18n = context.root.$i18n;
 
-    const {
-      form,
-      perPage,
-      buttonEditRecord,
-      buttonDeleteRecord,
-      hiddenFields,
-    } = toRefs(props);
+    const { form, perPage, buttonEditRecord, buttonDeleteRecord } = toRefs(
+      props
+    );
 
     const allCurrentPage = ref(1);
     if (localStorage.getItem(_id + "allCurrentPage")) {
       allCurrentPage.value = localStorage.getItem(_id + "allCurrentPage");
     }
+    const formFields0 = ref([]);
     const formFields = ref([]);
     const formFieldNames = ref([]);
     const allRecords = ref([]);
@@ -82,9 +103,9 @@ export default {
       searchCurrentPage.value = localStorage.getItem(_id + "searchCurrentPage");
     }
     const searchRecords = ref([]);
-    const searchMode = ref(false);
-    if (localStorage.getItem(_id + "searchMode")) {
-      searchMode.value = localStorage.getItem(_id + "searchMode") == "true";
+    const useMode = ref("all");
+    if (localStorage.getItem(_id + "useMode")) {
+      useMode.value = localStorage.getItem(_id + "useMode");
     }
     const searchString = ref("");
     if (localStorage.getItem(_id + "searchString")) {
@@ -93,12 +114,12 @@ export default {
 
     const currentPage = computed({
       get: () => {
-        return searchMode.value
+        return useMode.value === "search"
           ? searchCurrentPage.value
           : allCurrentPage.value;
       },
       set: (val) => {
-        if (searchMode.value) {
+        if (useMode.value === "search") {
           searchCurrentPage.value = val;
         } else {
           allCurrentPage.value = val;
@@ -107,7 +128,9 @@ export default {
     });
 
     const records = computed(() => {
-      return searchMode.value ? searchRecords.value : allRecords.value;
+      return useMode.value === "search"
+        ? searchRecords.value
+        : allRecords.value;
     });
 
     const search = async (str) => {
@@ -127,14 +150,25 @@ export default {
     };
 
     const searchStart = () => {
-      searchMode.value = true;
-      localStorage.setItem(_id + "searchMode", searchMode.value);
+      useMode.value = "search";
+      localStorage.setItem(_id + "useMode", useMode.value);
       localStorage.setItem(_id + "searchString", searchString.value);
       search(searchString.value);
     };
     const searchStop = () => {
-      searchMode.value = false;
-      localStorage.setItem(_id + "searchMode", searchMode.value);
+      useMode.value = "all";
+      localStorage.setItem(_id + "useMode", useMode.value);
+    };
+
+    const settings = () => {
+      useMode.value = "settings";
+    };
+    const settingsExit = () => {
+      useMode.value = "all";
+      if (localStorage.getItem(_id + "useMode")) {
+        useMode.value = localStorage.getItem(_id + "useMode");
+      }
+      useMode.value = "all";
     };
 
     const fetchPage = async (page) => {
@@ -173,13 +207,12 @@ export default {
     };
 
     const formHeaderFields = computed(() => {
-      const tmp = [];
-      if (!hiddenFields.value.includes("_id")) {
-        tmp.push({
+      const tmp = [
+        {
           key: "_id",
           label: "ID",
-        });
-      }
+        },
+      ];
 
       if (buttonEditRecord.value || buttonDeleteRecord.value) {
         tmp.unshift({
@@ -188,7 +221,7 @@ export default {
         });
       }
       for (const field of formFields.value) {
-        if (hiddenFields.value.includes(field.name)) {
+        if (field.hidden) {
           continue;
         }
         tmp.push({
@@ -202,6 +235,7 @@ export default {
     const onFormChange = async (newVal) => {
       await gql.getFormFields(newVal).then(
         (r) => {
+          formFields0.value = _.cloneDeep(r.fields);
           formFields.value = r.fields;
           formFieldNames.value = gql.formFieldNames(formFields.value);
         },
@@ -221,12 +255,12 @@ export default {
 
       fetchPage(allCurrentPage.value);
 
-      if (searchMode.value) {
+      if (useMode.value === "search") {
         await search(searchString.value);
       }
     };
 
-    if (form.value != "") {
+    if (form.value !== "") {
       onFormChange(form.value);
     }
 
@@ -261,12 +295,12 @@ export default {
     };
 
     const deleteRecord = async (id) => {
-      if (!(await context.root.$bvModal.msgBoxConfirm("確定刪除資料？"))) {
+      if (!(await _bvModal.msgBoxConfirm(_i18n.t("確定刪除資料？")))) {
         return;
       }
 
       if (!(await gql.deleteRecord(form.value, id))) {
-        context.root.$bvModal.msgBoxOk("刪除資料失敗！");
+        _bvModal.msgBoxOk(_i18n.t("刪除資料失敗！"));
         return;
       }
 
@@ -279,6 +313,61 @@ export default {
       fetchPage(allCurrentPage.value);
     };
 
+    const toggleAllHidden = (checked) => {
+      //var indexes = [];
+      //var names = [];
+      for (let i = 0; i < formFields.value.length; i++) {
+        if (formFields.value[i]["hidden"] != checked) {
+          //indexes.push(i);
+          //names.push(formFields.value[i].name);
+          formFields.value[i]["hidden"] = checked;
+        }
+      }
+      //this.undones.length = 0;
+      /*
+      this.actions.push({
+        type: "changeFieldHidden",
+        indexes: indexes,
+        names: names,
+        value: checked,
+      });
+      */
+    };
+
+    const toggleHidden = (key, checked) => {
+      /*
+      this.undones.length = 0;
+      this.actions.push({
+        type: "changeFieldHidden",
+        indexes: [key],
+        names: [formFields.value[key].name],
+        value: checked,
+      });
+      */
+    };
+
+    const settingsSave = async () => {
+      for (let i = 0; i < formFields0.value.length; i++) {
+        if (_.isEqual(formFields0.value[i], formFields.value[i])) {
+          continue;
+        }
+        if (
+          !(await gql.modifyField(
+            form.value,
+            formFields.value[i].name,
+            formFields.value[i]
+          ))
+        ) {
+          _bvModal.msgBoxOk(_i18n.t("儲存資料失敗！"));
+          return;
+        }
+      }
+    };
+
+    const settingsSaveLocal = () => {
+      console.log("sl");
+    };
+
     return {
       currentPage,
       formFields,
@@ -286,10 +375,16 @@ export default {
       formHeaderFields,
       editRecordUrl,
       deleteRecord,
-      searchMode,
+      useMode,
       searchString,
       searchStart,
       searchStop,
+      settings,
+      settingsExit,
+      toggleAllHidden,
+      toggleHidden,
+      settingsSave,
+      settingsSaveLocal,
     };
   },
 };

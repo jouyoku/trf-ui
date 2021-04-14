@@ -8,5 +8,15 @@
   "設定": "Setup",
   "表單": "Form",
   "結束": "Back",
-  "搜尋": "Search"
+  "搜尋": "Search",
+  "離開設定": "Exit setup",
+  "儲存設定": "Save setup",
+  "儲存為個人設定": "Save as personal setup",
+  "隱藏": "Hide",
+  "類型": "Type",
+  "名稱": "Name",
+  "說明": "Comment",
+  "確定刪除資料？": "Delete it?",
+  "刪除資料失敗！": "Delete failed!",
+  "儲存資料失敗！": "Save failed!"
 }

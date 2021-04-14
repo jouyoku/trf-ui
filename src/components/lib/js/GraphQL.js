@@ -6,6 +6,7 @@ import {
   mutation as gqlFormMutation,
 } from "./graphqlForm.js";
 import { whereStr, whereStrContains } from "./utils.js";
+import _ from "lodash";
 
 export async function getForms() {
   try {
@@ -135,6 +136,25 @@ export async function formSearch(form, formFieldNames, search) {
       },
     });
     return response.data.data.records2;
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+}
+
+export async function modifyField(form, fieldName, newField, move = "") {
+  try {
+    const tmp = _.cloneDeep(newField);
+    tmp.attributes = JSON.stringify(tmp.attributes);
+    const response = await axios.post(gqlFormUrl1(form), {
+      query: gqlFormMutation.changeField,
+      variables: {
+        fieldName: fieldName,
+        newField: tmp,
+        move: move,
+      },
+    });
+    return response.data.data.changeField;
   } catch (error) {
     console.error(error);
     return false;
